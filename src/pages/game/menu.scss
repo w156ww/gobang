@@ -1,0 +1,14 @@
+.menu {
+  display: flex;
+  justify-content: center;
+
+  > button {
+    margin: 0 20px;
+    width: 200px;
+    &:first-child {
+      background-color: #fdda9c;
+    }
+
+  }
+
+}

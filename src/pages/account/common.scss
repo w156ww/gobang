@@ -1,0 +1,23 @@
+.wrapper {
+  width: 400px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  .ipt {
+
+  }
+  .confirm {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    button {
+      width: 120px;
+
+      &:last-child {
+        margin-left: 20px;
+      }
+    }
+
+
+  }
+}
