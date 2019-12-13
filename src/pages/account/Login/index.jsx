@@ -3,8 +3,8 @@ import {withRouter} from 'react-router-dom';
 import {Input, Button, message} from "antd";
 import {login} from "../../../service/account";
 import {error} from "../../../component/func/message";
-// import {connect} from 'react-redux';
-// import {serUserName} from "../../store/action";
+import {connect} from 'react-redux';
+import {serUserName} from "../../store/action";
 
 import './index.scss';
 import '../common.scss';
@@ -29,19 +29,18 @@ function Login({history, setUserNameReducer}) {
 
             } else if (data.status === 1) {
 
-                // localStorage.setItem('user-token', data.TOKEN);
-                //
-                // window.userName = data.TOKEN;
-                // console.log('setUserNameReducer:', setUserNameReducer({userName}));
-                //
-                // setUserNameReducer({userName});
+                localStorage.setItem('user-token', data.TOKEN);
+
+                window.userName = data.TOKEN;
+
+                setUserNameReducer({userName});
 
                 history.push('/game');
             }
         }).catch(err => {
             console.log(err);
         })
-    };
+    }
 
     const handleRegister = function () {
         history.push('/register');
@@ -66,10 +65,9 @@ function Login({history, setUserNameReducer}) {
 
 const mapDispatch = dispatch => {
     return {
-        // setUserNameReducer: data => dispatch(serUserName(data))
+        setUserNameReducer: data => dispatch(serUserName(data))
     }
 };
 
 
-// export default withRouter(connect(null, mapDispatch)(Login));
-export default withRouter(Login);
+export default withRouter(connect(null, mapDispatch)(Login));

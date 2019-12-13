@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import Checkerboard from "./Checkerboard/Checkerboard";
 import Menu from "./Menu/Menu";
 import UserList from "./UserList/UserList";
@@ -10,12 +10,16 @@ import {findAllUser} from "../../service/game";
 import {warning, error} from "../../component/func/message";
 import {USER_TOKEN} from "../../config/identify-token";
 
+import {connect} from 'react-redux';
+import {setSocket} from "./store/action";
 
-function Game({history}) {
+
+function Game({history, setSocket}) {
 
     const [client, setClient] = useState(null);
     const [userList, setUserList] = useState([]);
-    const [PVP, serPVP] = useState({});
+    const [PVP, setPVP] = useState({});
+    const [startGame, setStartGame] = useState(false);
 
     const getAllUser = function() {
         return new Promise((resolve, reject) => {
@@ -39,45 +43,51 @@ function Game({history}) {
 
     useEffect(() => {
 
-        getAllUser().then(() => {
-            // 登录成功后，建立 socket 连接
-            setClient(createSocket());
-        })
+        setClient(createSocket())
+
     }, []);
 
     useEffect(() => {
         if (client) {
+            // setSocket(client);
+
             const userToken = localStorage.getItem(USER_TOKEN);
+
             client.listenError(function (msg) {
                 error(msg);
             });
-            client.sendUserInfo({userName: userToken});
-            client.socket.on('getUserStatus', function () {
 
+            client.getUserStatus(function () {
                 getAllUser();
             });
 
-            client.socket.on('loginExpire', function () {
+            client.loginExpire(function () {
                 warning('登录已过期，请重新登录');
                 history.push('/login')
-            })
+            });
+
+            client.sendUserInfo({userName: userToken});
         }
     }, [client]);
 
     return (
         <div className="game">
             <div className="container">
-                <Checkerboard />
+                <Checkerboard startGame={startGame} />
                 <Menu {...client} />
             </div>
             <div className="userList">
-                <UserList userList={userList} />
+                <UserList userList={userList} PVP={PVP} setPVP={setPVP} client={client} setStartGame={setStartGame} />
             </div>
 
         </div>
     )
 }
-
-
+//
+// const mapDispatchToProps = dispatch => {
+//     return {
+//         setSocket: data => dispatch(setSocket(data))
+//     }
+// }
 
 export default withRouter(Game);
