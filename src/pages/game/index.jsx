@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import Checkerboard from "./Checkerboard";
-import Menu from "./menu";
-import UserList from "./UserList";
+import Checkerboard from "./Checkerboard/Checkerboard";
+import Menu from "./Menu/Menu";
+import UserList from "./UserList/UserList";
 import './index.scss'
 import {withRouter} from 'react-router-dom'
 
@@ -15,6 +15,7 @@ function Game({history}) {
 
     const [client, setClient] = useState(null);
     const [userList, setUserList] = useState([]);
+    const [PVP, serPVP] = useState({});
 
     const getAllUser = function() {
         return new Promise((resolve, reject) => {
@@ -25,7 +26,6 @@ function Game({history}) {
                     return history.push('/login')
                 }
                 if (data && data.length) {
-                    console.log('获取数据', data);
                     setUserList(data);
                     resolve();
                 }
@@ -63,6 +63,7 @@ function Game({history}) {
             })
         }
     }, [client]);
+
     return (
         <div className="game">
             <div className="container">

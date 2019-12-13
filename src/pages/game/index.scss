@@ -4,5 +4,10 @@
   position: relative;
   display: flex;
   justify-content: space-around;
+  box-sizing: border-box;
+  padding: 20px 0;
+}
 
+ul {
+  margin: 0;
 }

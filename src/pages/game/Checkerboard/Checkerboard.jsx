@@ -31,7 +31,6 @@ function createCheckerboard() {
     return result
 }
 
-
 function changeRound(currentRound) {
     return currentRound === 'black' ? 'white' : 'black';
 }
@@ -154,7 +153,7 @@ function Checkerboard() {
     return (
         <div className="checkerboard">
 
-            {/*<ul>
+            <ul>
                 {
                     checkerboardArr.map((row, index) => (
                         <li key={index} className="row">
@@ -185,7 +184,7 @@ function Checkerboard() {
                         </li>
                     ))
                 }
-            </ul>*/}
+            </ul>
         </div>
     )
 }
