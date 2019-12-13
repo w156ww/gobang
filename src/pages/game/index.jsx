@@ -39,28 +39,28 @@ function Game({history}) {
 
     useEffect(() => {
 
-        getAllUser().then(() => {
-            // 登录成功后，建立 socket 连接
-            setClient(createSocket());
-        })
+        setClient(createSocket())
+
     }, []);
 
     useEffect(() => {
         if (client) {
             const userToken = localStorage.getItem(USER_TOKEN);
+
             client.listenError(function (msg) {
                 error(msg);
             });
-            client.sendUserInfo({userName: userToken});
-            client.socket.on('getUserStatus', function () {
 
+            client.socket.on('getUserStatus', function () {
                 getAllUser();
             });
 
             client.socket.on('loginExpire', function () {
                 warning('登录已过期，请重新登录');
                 history.push('/login')
-            })
+            });
+
+            client.sendUserInfo({userName: userToken});
         }
     }, [client]);
 
