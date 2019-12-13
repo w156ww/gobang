@@ -11,6 +11,7 @@ import {
     checkTop,
     checkAll
 } from "./checkPieceLink";
+import {connect} from 'react-redux';
 
 const black = 113;
 const white = 112;
@@ -138,7 +139,7 @@ function isWin(rowIdx, colIdx, checkerboardArr) {
     }
 }
 
-function Checkerboard() {
+function Checkerboard({startGame, data}) {
 
     const [checkerboardArr, setCheckerboardArr] = useState(createCheckerboard());
     const [currentRound, setCurrentRound] = useState('black');
@@ -149,6 +150,16 @@ function Checkerboard() {
             alert(`${currentRound} 方获得胜利`)
         }
     }, [currentRound, hasWin]);
+
+    useEffect(() => {
+        if (startGame) {
+
+        }
+    }, [startGame]);
+
+    const initState = function () {
+        setCheckerboardArr(createCheckerboard());
+    };
 
     return (
         <div className="checkerboard">
@@ -189,7 +200,10 @@ function Checkerboard() {
     )
 }
 
+const mapState = state => ({
+    data: state.userName
+});
 
-export default Checkerboard;
+export default connect(mapState)(Checkerboard);
 
 

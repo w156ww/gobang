@@ -1,10 +1,8 @@
-//
-//
-//
-// const SET_API_INFO = 'SET_API_INFO';
-//
-//
-//
-// export {
-//     SET_API_INFO
-// }
+
+const SET_SOCKET_CLIENT = 'SET_SOCKET_CLIENT';
+const GET_SOCKET_CLIENT = 'GET_SOCKET_CLIENT';
+
+export {
+    SET_SOCKET_CLIENT,
+    GET_SOCKET_CLIENT,
+}
