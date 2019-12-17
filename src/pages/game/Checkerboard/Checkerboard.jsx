@@ -12,6 +12,7 @@ import {
     checkAll
 } from "./checkPieceLink";
 import {connect} from 'react-redux';
+import {success, warning} from "../../../component/func/message";
 
 const black = 113;
 const white = 112;
@@ -32,23 +33,8 @@ function createCheckerboard() {
     return result
 }
 
-function changeRound(currentRound) {
-    return currentRound === 'black' ? 'white' : 'black';
-}
-
-function playChess(rowIdx, colIdx, {checkerboardArr, setCheckerboardArr, currentRound, setCurrentRound, hasWin, setHasWin}) {
-    const cloneCheckerboardArr = [...checkerboardArr];
-    let currentObj = cloneCheckerboardArr[rowIdx][colIdx];
-    if (currentObj.piece) return;
-    currentObj.piece = currentRound;
-    setCheckerboardArr(cloneCheckerboardArr);
-    const result = isWin(rowIdx, colIdx, checkerboardArr);
-    console.log('result::', result);
-    if (result) {
-        return setHasWin(true);
-    }
-
-    setCurrentRound(changeRound(currentRound));
+function changeRound(currentRoundPiece) {
+    return currentRoundPiece === 'black' ? 'white' : 'black';
 }
 
 function isWin(rowIdx, colIdx, checkerboardArr) {
@@ -139,26 +125,92 @@ function isWin(rowIdx, colIdx, checkerboardArr) {
     }
 }
 
-function Checkerboard({startGame, data}) {
+function Checkerboard({client, startGame, PVP, setPVP, data}) {
 
     const [checkerboardArr, setCheckerboardArr] = useState(createCheckerboard());
-    const [currentRound, setCurrentRound] = useState('black');
-    const [hasWin, setHasWin] = useState(false);
+    const [currentRoundPiece, setCurrentRoundPiece] = useState('');
+    const [currentRoundUser, setCurrentRoundUser] = useState('');
+    const [hasWin, setHasWin] = useState('');
+
+    useEffect(() => {
+        if (client) {
+            client.acceptPieces(function (data) {
+                setCheckerboardArr([...data.cloneCheckerboardArr]);
+                setCurrentRoundPiece(data.piece);
+
+                if (data.result) {
+                    setHasWin(PVP.vs.name);
+                }
+            })
+        }
+    }, [client]);
 
     useEffect(() => {
         if (hasWin) {
-            alert(`${currentRound} 方获得胜利`)
+            success(`${hasWin}胜利！！`)
         }
-    }, [currentRound, hasWin]);
+    }, [hasWin]);
 
     useEffect(() => {
         if (startGame) {
+            // 初始化棋盘
+            initState();
 
         }
     }, [startGame]);
 
+    useEffect(() => {
+        if (currentRoundPiece && startGame) {
+            console.log('改变 current 后，触发 set 方法', currentRoundPiece);
+            // 设置当前回合的用户
+            setCurrentRoundUser(getCurrentRoundUserName());
+        }
+
+    }, [currentRoundPiece]);
+
     const initState = function () {
         setCheckerboardArr(createCheckerboard());
+        setCurrentRoundPiece('black');
+        setHasWin('');
+    };
+    // 下棋
+    const playChess = function (rowIdx, colIdx) {
+        // 判断是否是该用户回合  如果不是则直接返回
+        if (startGame && (currentRoundPiece !== PVP.self.piece)) return warning('没到你呢');
+
+        const cloneCheckerboardArr = [...checkerboardArr];
+        let currentObj = cloneCheckerboardArr[rowIdx][colIdx];
+        if (currentObj.piece) return warning('这里已经有棋子了');
+        currentObj.piece = currentRoundPiece;
+        setCheckerboardArr(cloneCheckerboardArr);
+        const result = isWin(rowIdx, colIdx, checkerboardArr);
+        const piece = changeRound(currentRoundPiece);
+
+        if (result) {
+
+            if (startGame) {
+                client.placingPieces({cloneCheckerboardArr, piece, result}, PVP.vs.name);
+            }
+
+            return setHasWin(data.userName || '');
+        }
+
+        setCurrentRoundPiece(piece);
+
+        if (startGame) {
+            // 发送落子数据
+            client.placingPieces({cloneCheckerboardArr, piece, result}, PVP.vs.name);
+        } else {
+            setCurrentRoundUser(piece);
+        }
+
+
+    };
+    // 获取当前回合的用户
+    const getCurrentRoundUserName = function () {
+        console.log('PVP::', PVP);
+        if (currentRoundPiece === PVP.self.piece) return PVP.self.name;
+        return PVP.vs.name;
     };
 
     return (
@@ -172,14 +224,7 @@ function Checkerboard({startGame, data}) {
                                 {
                                     row.map((col, idx) => (
                                         <li key={idx} className="col" onClick={() => {
-                                            playChess(index, idx, {
-                                                checkerboardArr,
-                                                setCheckerboardArr,
-                                                currentRound,
-                                                setCurrentRound,
-                                                hasWin,
-                                                setHasWin
-                                            })
+                                            playChess(index, idx)
                                         }}>
                                             {
                                                 col.piece === 'black'
@@ -196,6 +241,9 @@ function Checkerboard({startGame, data}) {
                     ))
                 }
             </ul>
+            <div className="currentPieceUserName">
+                当前回合：{currentRoundUser}
+            </div>
         </div>
     )
 }

@@ -16,10 +16,10 @@ import {setSocket} from "./store/action";
 
 function Game({history, setSocket}) {
 
-    const [client, setClient] = useState(null);
-    const [userList, setUserList] = useState([]);
-    const [PVP, setPVP] = useState({});
-    const [startGame, setStartGame] = useState(false);
+    const [client, setClient] = useState(null); // ws client
+    const [userList, setUserList] = useState([]); // 用户列表
+    const [PVP, setPVP] = useState({}); // 对战双方信息
+    const [startGame, setStartGame] = useState(false); // 是否开始游戏
 
     const getAllUser = function() {
         return new Promise((resolve, reject) => {
@@ -73,7 +73,7 @@ function Game({history, setSocket}) {
     return (
         <div className="game">
             <div className="container">
-                <Checkerboard startGame={startGame} />
+                <Checkerboard client={client} startGame={startGame} PVP={PVP} setPVP={setPVP}/>
                 <Menu {...client} />
             </div>
             <div className="userList">

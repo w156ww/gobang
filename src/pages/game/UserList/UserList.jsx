@@ -25,23 +25,36 @@ function getLevel(level) {
     }
 }
 
-function UserList({PVP, setPVP, userList, data, client, setStartGame}) {
+function UserList({setPVP, userList, data, client, setStartGame}) {
     const [visible, setVisible] = useState(false);
-    const [launchFromUser, setLaunchFromUser] = useState('');
+    const [opponent, setOpponent] = useState(''); // 对手
 
     useEffect(() => {
         if (client) {
             // 接收到对面的挑战
             client.launchFrom(function (from) {
                 setVisible(true);
-                setLaunchFromUser(from);
+                setOpponent(from);
             });
             // 监听对面是否接受的信息
-            client.getLaunchInfo(function (isAccept) {
+            client.getLaunchInfo(function (isAccept, from) {
                 if (isAccept) {
                     success('开打开打');
+                    setPVP({
+                        self: {
+                            name: data.userName,
+                            challenger: true,
+                            piece: 'white'
+                        },
+                        vs: {
+                            name: from,
+                            challenger: false,
+                            piece: 'black'
+                        }
+                    });
                     setStartGame(true);
                 } else {
+                    setOpponent(''); // 拒绝后，删除对手的 userName
                     warning('对方拒绝了你，并向你呵呵')
                 }
             })
@@ -53,17 +66,32 @@ function UserList({PVP, setPVP, userList, data, client, setStartGame}) {
         if (item.userName === data.userName) return warning('傻？自己和自己玩？');
         // 发起挑战
         client.launchTo(data.userName, item.userName);
+        setOpponent(item.userName); // 记录对手的 userName
     };
+
     // 拒绝后，发送拒绝的信息
     const handleCancel = function () {
         setVisible(false);
-        client.acceptLaunch(false, launchFromUser);
-        setLaunchFromUser(false);
+        client.acceptLaunch(false, data.userName, opponent);
+        setOpponent('');
     };
     // 同意接受挑战，发送同意的信息
     const handleOk = function () {
         setVisible(false);
-        client.acceptLaunch(true, launchFromUser);
+        setPVP({
+            self: {
+                name: data.userName,
+                challenger: false,
+                piece: 'black'
+            },
+            vs: {
+                name: opponent,
+                challenger: true,
+                piece: 'white'
+            }
+        });
+        setStartGame(true);
+        client.acceptLaunch(true, data.userName, opponent);
     };
 
 
@@ -75,7 +103,7 @@ function UserList({PVP, setPVP, userList, data, client, setStartGame}) {
                 onOk={handleOk}
                 onCancel={handleCancel}
             >
-                <p>是否接受{launchFromUser}的挑战？</p>
+                <p>是否接受{opponent}的挑战？</p>
             </Modal>
             <ul className="titleUl">
                 <li>
