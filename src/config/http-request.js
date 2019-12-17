@@ -10,8 +10,8 @@ const instance = axios.create({
 instance.interceptors.request.use(request => {
     console.log('config',request);
 
-    const token = localStorage.getItem(USER_TOKEN);
-    // const token = window.userName;
+    // const token = localStorage.getItem(USER_TOKEN);
+    const token = window.userName;
 
     if (token) {
         request.headers[USER_TOKEN] = token;

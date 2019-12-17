@@ -34,8 +34,8 @@ export default function () {
         socket.on('launchFrom', cb);
     }
     // 接受挑战
-    function acceptLaunch(data, to) {
-        socket.emit('acceptLaunch', data, to)
+    function acceptLaunch(data, from, to) {
+        socket.emit('acceptLaunch', data, from, to)
     }
     // 监听接受挑战信息
     function getLaunchInfo(cb) {
@@ -43,7 +43,7 @@ export default function () {
     }
     // 落子位置数据
     function placingPieces(data, to) {
-        socket.emit('placing pieces', data, to);
+        socket.emit('placingPieces', data, to);
     }
     // 接收落子位置
     function acceptPieces(cb) {
